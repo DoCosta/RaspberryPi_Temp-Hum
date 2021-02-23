@@ -3,6 +3,7 @@ import adafruit_dht
 from board import D4
 from datetime import datetime
 from configparser import ConfigParser
+from pathlib import Path
 import os
 
 # Define Var.
@@ -10,23 +11,25 @@ i = 0
 wait = 3.0
 
 # Define Logfile Path
-logfilepath = '../../logfile/' 
+#logfilepath = 'logfile/' 
 
-# Try creating LogFile
-try:
-    os.mkdir(logfilepath)
-except OSError:
-    print("Path not Created")
-else:
-    print("Path Created")
+
+
+
+# Read Config file
+config = ConfigParser()
+config.read('config.ini')
+# tempfileSection = config['tempfile']
+logfilepath = config['tempfile']['logfilepath']
+
+# print(logfilepath)
+
+Path(logfilepath).mkdir(parents=True, exist_ok=True)
 
 # Define Logfile Name
 filename = str(datetime.now().strftime("%Y-%m-%d") + "_templog.csv")
 logfile = str(logfilepath + filename)
 
-# Read Config file
-config = ConfigParser()
-config.read('Config.ini')
 
 # Create File or append new Data
 dht_device = adafruit_dht.DHT22(D4)
