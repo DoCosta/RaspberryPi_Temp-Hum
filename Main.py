@@ -10,29 +10,23 @@ import os
 i = 0
 wait = 3.0
 
-# Define Logfile Path
-#logfilepath = 'logfile/' 
-
-
-
-
 # Read Config file
 config = ConfigParser()
 config.read('config.ini')
 # tempfileSection = config['tempfile']
 logfilepath = config['tempfile']['logfilepath']
 
-# print(logfilepath)
-
+# Create Path if not already exists
 Path(logfilepath).mkdir(parents=True, exist_ok=True)
 
 # Define Logfile Name
 filename = str(datetime.now().strftime("%Y-%m-%d") + "_templog.csv")
 logfile = str(logfilepath + filename)
 
+# Define Temp reader
+dht_device = adafruit_dht.DHT22(D4)
 
 # Create File or append new Data
-dht_device = adafruit_dht.DHT22(D4)
 datei = open(logfile,'w+')
 
 while i == 0:
