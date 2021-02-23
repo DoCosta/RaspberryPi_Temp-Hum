@@ -1,16 +1,64 @@
 import time
 import adafruit_dht
 from board import D4
+from datetime import datetime
+from configparser import ConfigParser
+import os
 
+# Define Var.
+i = 0
+wait = 3.0
+
+# Define Logfile Path
+logfilepath = '../../logfile/' 
+
+# Try creating LogFile
+try:
+    os.mkdir(logfilepath)
+except OSError:
+    print("Path not Created")
+else:
+    print("Path Created")
+
+# Define Logfile Name
+filename = str(datetime.now().strftime("%Y-%m-%d") + "_templog.csv")
+logfile = str(logfilepath + filename)
+
+# Read Config file
+config = ConfigParser()
+config.read('Config.ini')
+
+# Create File or append new Data
 dht_device = adafruit_dht.DHT22(D4)
+datei = open(logfile,'w+')
 
-while True:
+while i == 0:
     try:
+
+        # current date and time
+        dt_object = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        #Read & Print Temp & Hum
         temperature = dht_device.temperature
         humidity = dht_device.humidity
-        print("temperatur: ", temperature, "humidity: ", humidity)
+        data = str(["timestamp: ", dt_object, "; temperatur: ", temperature, "; humidity: ", humidity])
+        print("timestamp: ", dt_object, "; temperatur: ", temperature, "; humidity: ", humidity)
 
+        # Write Data into file
+        datei.write("\r\n" + data)           
+
+    # Check No Errors
     except RuntimeError as error:
         print(error.args)
+        i = 0
 
-    time.sleep(2.0)
+        #Repeat if Failed
+        print("Repeating action")
+
+    else:
+        # Check Temperature has Data
+        if temperature != None:
+            i = 1
+
+    # Wait specific amount of Time
+    time.sleep(wait)
