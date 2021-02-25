@@ -3,6 +3,7 @@ import adafruit_dht
 from board import D4
 from datetime import datetime
 from configparser import ConfigParser
+from bottle import run, route
 from pathlib import Path
 import os
 
@@ -27,7 +28,7 @@ logfile = str(logfilepath + filename)
 dht_device = adafruit_dht.DHT22(D4)
 
 # Create File or append new Data
-datei = open(logfile,'w+')
+datei = open(logfile,'a+')
 
 while i == 0:
     try:
@@ -39,7 +40,7 @@ while i == 0:
         temperature = dht_device.temperature
         humidity = dht_device.humidity
         data = str(["timestamp: ", dt_object, "; temperatur: ", temperature, "; humidity: ", humidity])
-        print("timestamp: ", dt_object, "; temperatur: ", temperature, "; humidity: ", humidity)
+        print(data)
 
         # Write Data into file
         datei.write("\r\n" + data)           
@@ -59,3 +60,5 @@ while i == 0:
 
     # Wait specific amount of Time
     time.sleep(wait)
+
+
