@@ -5,11 +5,14 @@ from datetime import datetime
 from configparser import ConfigParser
 from bottle import run, route
 from pathlib import Path
+from os import path
+import csv
 import os
 
 # Define Var.
 i = 0
-wait = 3.0
+p = 0
+wait = 1.5
 
 # Read Config file
 config = ConfigParser()
@@ -17,7 +20,6 @@ config.read('config.ini')
 # tempfileSection = config['tempfile']
 logfilepath = config['tempfile']['logfilepath']
 
-# Create Path if not already exists
 Path(logfilepath).mkdir(parents=True, exist_ok=True)
 
 # Define Logfile Name
@@ -28,6 +30,7 @@ logfile = str(logfilepath + filename)
 dht_device = adafruit_dht.DHT22(D4)
 
 # Create File or append new Data
+
 datei = open(logfile,'a+')
 
 while i == 0:
@@ -39,11 +42,22 @@ while i == 0:
         #Read & Print Temp & Hum
         temperature = dht_device.temperature
         humidity = dht_device.humidity
-        data = str(["timestamp: ", dt_object, "; temperatur: ", temperature, "; humidity: ", humidity])
+        data = str([dt_object, temperature,humidity])
         print(data)
 
         # Write Data into file
-        datei.write("\r\n" + data)           
+        # Check Temperature has Data
+        if temperature != None:
+            with datei:
+                
+                rownames = ['Datum', 'Temperatur', 'Humidity']
+                writer = csv.DictWriter(datei, fieldnames=rownames)    
+
+                writer.writeheader()
+                writer.writerow({'Datum' : dt_object, 'Temperatur': temperature, 'Humidity' : humidity})
+
+
+            # datei.write("\r\n" + data)      
 
     # Check No Errors
     except RuntimeError as error:
@@ -60,5 +74,4 @@ while i == 0:
 
     # Wait specific amount of Time
     time.sleep(wait)
-
 
