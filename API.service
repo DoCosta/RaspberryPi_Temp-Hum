@@ -1,0 +1,11 @@
+[Unit]
+Description=API
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python /home/pi/Git/RaspberryPi_Temp-Hum/API.py
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
