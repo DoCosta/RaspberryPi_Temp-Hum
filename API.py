@@ -1,35 +1,44 @@
 from datetime import datetime
 from configparser import ConfigParser
-from bottle import run, route
+import bottle
+from bottle import run, route, response
+from Temp import Temp
 import numpy as np
 import csv
+import json
 i = 0
-
 
 config = ConfigParser()
 config.read('config.ini')
 # tempfileSection = config['tempfile']
 logfilepath = config['tempfile']['logfilepath']
 
-filename = str(datetime.now().strftime("%Y-%m-%d") + "_templog.csv")
-logfile = str(logfilepath + filename)
-
-logfile = open(logfile,'r')
-
-with logfile:
-    reader = csv.DictReader(logfile)
-    
-    for row in reader:
-        Date = row['Datum']
-        Temp = row['Temperatur']
-        Hum = row['Humidity']
-logfile.close()
-
+def tojson(self):
+    return self.__dict__
 
 @route('/')
 def index():
-    return { "Date" : Date, "Temp": Temp, "Hum" : Hum }
+    
+    filename = str(datetime.now().strftime("%Y-%m-%d") + "_templog.csv")
+    logfile = str(logfilepath + filename)
 
-run(host='localhost', port=8080, debug=True, reloader=True)
+    logfile = open(logfile,'r')
 
+    with logfile:
+        reader = csv.DictReader(logfile)
+        objs = []
+        
+        for row in reader:
+            tempObj = Temp()
+            tempObj.date = row['Datum']
+            tempObj.temp = row['Temperatur']
+            tempObj.hum = row['Humidity']
 
+            objs.append(tempObj)
+
+    logfile.close()
+
+    response.content_type = 'application/json'
+    return json.dumps(objs, default=tojson)
+
+run(host='0.0.0.0', port=8080, debug=True, reloader=True)

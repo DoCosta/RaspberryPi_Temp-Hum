@@ -52,8 +52,8 @@ while i == 0:
                 
                 rownames = ['Datum', 'Temperatur', 'Humidity']
                 writer = csv.DictWriter(datei, fieldnames=rownames)    
-
-                writer.writeheader()
+                if datei.tell() == 0:
+                    writer.writeheader()
                 writer.writerow({'Datum' : dt_object, 'Temperatur': temperature, 'Humidity' : humidity})
 
 
@@ -74,4 +74,3 @@ while i == 0:
 
     # Wait specific amount of Time
     time.sleep(wait)
-
