@@ -15,6 +15,31 @@ logfilepath = config['tempfile']['logfilepath']
 
 def tojson(self):
     return self.__dict__
+Date =''
+
+@route('/<Date>')
+def date(Date):
+    filename = str(datetime.now().strftime(Date) + "_templog.csv")
+    logfile = str(logfilepath + filename)
+
+    logfile = open(logfile,'r')
+
+    with logfile:
+        reader = csv.DictReader(logfile)
+        objs = []
+        
+        for row in reader:
+            tempObj = Temp()
+            tempObj.date = row['Datum']
+            tempObj.temp = row['Temperatur']
+            tempObj.hum = row['Humidity']
+
+            objs.append(tempObj)
+
+    logfile.close()
+
+    response.content_type = 'application/json'
+    return json.dumps(objs, default=tojson)
 
 @route('/')
 def index():
