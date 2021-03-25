@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/pi/git/RaspberryPi_Temp-Hum/
+WorkingDirectory=/home/pi/Git/RaspberryPi_Temp-Hum/
 ExecStart=python3 API.py
 Restart=on-abort
 

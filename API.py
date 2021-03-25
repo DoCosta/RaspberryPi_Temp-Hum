@@ -17,6 +17,10 @@ def tojson(self):
     return self.__dict__
 Date =''
 
+@route('/DataSince/')
+def asdf(Date):
+
+
 @route('/<Date>')
 def date(Date):
     filename = str(datetime.now().strftime(Date) + "_templog.csv")
