@@ -4,8 +4,10 @@ import bottle
 from bottle import run, route, response
 from Temp import Temp
 import numpy as np
+import os
 import csv
 import json
+
 i = 0
 
 config = ConfigParser()
@@ -19,16 +21,17 @@ Date =''
 
 @route('/DataSince/<date>')
 def datasince(date):
-    Day = date.split(" ", 1)
-    filename = str(datetime.now().strftime(Day[0]) + "_templog.csv")
+    date = date.replace("%20", " ")
+    day = date.split(" ", 1)
+    objs = []
+    
+    # start day
+    filename = str(datetime.now().strftime(day[0]) + "_templog.csv")
     logfile = str(logfilepath + filename)
     logfile = open(logfile,'r')
-
     with logfile:
-
         reader = csv.DictReader(logfile)
-        objs = []
-
+        
         for row in reader:
                 if date == row['Datum'] or date <= row['Datum']:
 
@@ -38,38 +41,59 @@ def datasince(date):
                     tempObj.hum = row['Humidity']
 
                     objs.append(tempObj)
-
     logfile.close()
 
+    files = os.listdir('logfile/')
+
+    # all newer files
+    for file in files:
+        if filename < file:
+            
+            logfile = str(logfilepath + file)
+            logfile = open(logfile,'r')
+            with logfile:
+                reader = csv.DictReader(logfile)
+                
+                for row in reader:
+                        if date == row['Datum'] or date <= row['Datum']:
+                            tempObj = Temp()
+                            tempObj.date = row['Datum']
+                            tempObj.temp = row['Temperatur']
+                            tempObj.hum = row['Humidity']
+
+                            objs.append(tempObj)
+            logfile.close()
+
     response.content_type = 'application/json'
+    objs.sort(key=lambda x: x.date)
     return json.dumps(objs, default=tojson)
 
 
 
-@route('/<Date>')
-def date(Date):
-    filename = str(datetime.now().strftime(Date) + "_templog.csv")
-    logfile = str(logfilepath + filename)
+# @route('Date/<Date>')
+# def date(Date):
+#     filename = str(datetime.now().strftime(Date) + "_templog.csv")
+#     logfile = str(logfilepath + filename)
 
-    logfile = open(logfile,'r')
+#     logfile = open(logfile,'r')
 
-    with logfile:
-        objs = []
-        reader = csv.DictReader(logfile)
+#     with logfile:
+#         objs = []
+#         reader = csv.DictReader(logfile)
         
         
-        for row in reader:
-            tempObj = Temp()
-            tempObj.date = row['Datum']
-            tempObj.temp = row['Temperatur']
-            tempObj.hum = row['Humidity']
+#         for row in reader:
+#             tempObj = Temp()
+#             tempObj.date = row['Datum']
+#             tempObj.temp = row['Temperatur']
+#             tempObj.hum = row['Humidity']
 
-            objs.append(tempObj)
+#             objs.append(tempObj)
 
-    logfile.close()
+#     logfile.close()
 
-    response.content_type = 'application/json'
-    return json.dumps(objs, default=tojson)
+#     response.content_type = 'application/json'
+#     return json.dumps(objs, default=tojson)
 
 @route('/')
 def index():
